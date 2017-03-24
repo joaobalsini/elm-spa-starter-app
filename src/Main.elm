@@ -8,6 +8,7 @@ import RouteModule exposing (..)
 import MessageModule exposing (..)
 import IndexModule
 import LoginModule
+import Aliases exposing (..)
 
 
 main : Program Never Model Msg
@@ -25,11 +26,11 @@ main =
 
 
 type alias Model =
-    { routeModule : Route
+    { route : Route
     , lastRoute : Route
     , loginModuleModel : LoginModule.Model
     , indexModuleModel : IndexModule.Model
-    , messageModuleMessage : MessageModule.Message
+    , messageModuleMessage : Message
     }
 
 
@@ -53,7 +54,7 @@ init location =
             , lastRoute = IndexModuleRoute
             , indexModuleModel = indexModuleInitModel
             , loginModuleModel = loginModuleInitModel
-            , messageModuleMessage = MessageModule.initMessage
+            , messageModuleMessage = messageModuleInitMessage
             }
 
         cmds =
@@ -111,7 +112,7 @@ update msg model =
         IndexModuleMsg msg ->
             let
                 ( indexModuleModel, cmd ) =
-                    IndexModule.update msg model.index
+                    IndexModule.update msg model.indexModuleModel
             in
                 ( { model | indexModuleModel = indexModuleModel }
                 , Cmd.map IndexModuleMsg cmd
@@ -120,7 +121,7 @@ update msg model =
         LoginModuleMsg msg ->
             let
                 ( loginModuleModel, cmd, message ) =
-                    LoginModule.update msg model.login
+                    LoginModule.update msg model.loginModuleModel
             in
                 ( { model | loginModuleModel = loginModuleModel, messageModuleMessage = message }
                 , Cmd.map LoginModuleMsg cmd
@@ -144,11 +145,11 @@ view model =
             case model.route of
                 IndexModuleRoute ->
                     Html.map IndexModuleMsg
-                        (IndexModule.view model.indexModule)
+                        (IndexModule.view model.indexModuleModel)
 
                 LoginModuleRoute ->
                     Html.map LoginModuleMsg
-                        (LoginModule.view model.loginModule)
+                        (LoginModule.view model.loginModuleModel)
 
                 NotFoundRoute ->
                     div [ class "main" ]
@@ -158,7 +159,7 @@ view model =
     in
         div []
             [ div [ class "ui fixed inverted menu" ] [ pageHeader model ]
-            , Html.map MessageModuleMsg (MessageModule.view model.messageModule)
+            , Html.map MessageModuleMsg (MessageModule.view model.messageModuleMessage)
             , div [ class "ui main text container" ] [ page ]
             ]
 
@@ -179,13 +180,13 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     let
         loginModuleSub =
-            LoginModule.subscriptions model.login
+            LoginModule.subscriptions model.loginModuleModel
 
         indexModuleSub =
-            IndexModule.subscriptions model.index
+            IndexModule.subscriptions model.indexModuleModel
 
         messageModuleSub =
-            MessageModule.subscriptions model.message
+            MessageModule.subscriptions model.messageModuleMessage
     in
         Sub.batch
             [ Sub.map IndexModuleMsg indexModuleSub

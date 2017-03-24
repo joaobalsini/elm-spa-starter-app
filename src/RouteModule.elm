@@ -5,18 +5,18 @@ import UrlParser as Url exposing ((</>), (<?>), top)
 
 
 type Route
-    = IndexRoute
-    | LoginRoute
+    = IndexModuleRoute
+    | LoginModuleRoute
     | NotFoundRoute
 
 
 routeToHash : Route -> String
 routeToHash route =
     case route of
-        IndexRoute ->
+        IndexModuleRoute ->
             "#/"
 
-        LoginRoute ->
+        LoginModuleRoute ->
             "#/login"
 
         NotFoundRoute ->
@@ -26,8 +26,8 @@ routeToHash route =
 matchers : Url.Parser (Route -> a) a
 matchers =
     Url.oneOf
-        [ Url.map IndexRoute top
-        , Url.map LoginRoute (Url.s "login")
+        [ Url.map IndexModuleRoute top
+        , Url.map LoginModuleRoute (Url.s "login")
         ]
 
 
