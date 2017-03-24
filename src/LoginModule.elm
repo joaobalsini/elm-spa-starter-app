@@ -1,10 +1,10 @@
-module Login exposing (..)
+module LoginModule exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-import Message exposing (..)
-import Routes exposing (..)
+import RouteModule exposing (..)
+import Aliases exposing (..)
 import Navigation
 
 
@@ -49,19 +49,19 @@ update : Msg -> Model -> ( Model, Cmd Msg, Message )
 update msg model =
     case msg of
         UsernameInput username ->
-            ( { model | username = username }, Cmd.none, Message.initMessage )
+            ( { model | username = username }, Cmd.none, initMessage )
 
         PasswordInput password ->
-            ( { model | password = password }, Cmd.none, Message.initMessage )
+            ( { model | password = password }, Cmd.none, initMessage )
 
         Submit ->
-            ( model, Navigation.newUrl (routeToHash model.redirectRoute), Message.warningMessage "Login submit not defined" )
+            ( model, Navigation.newUrl (routeToHash model.redirectRoute), warningMessage "Login submit not defined" )
 
         Cancel ->
-            ( model, Navigation.newUrl (routeToHash model.redirectRoute), Message.infoMessage "Login canceled" )
+            ( model, Navigation.newUrl (routeToHash model.redirectRoute), infoMessage "Login canceled" )
 
         Error error ->
-            ( { model | error = Just error }, Cmd.none, Message.errorMessage "Login error" )
+            ( { model | error = Just error }, Cmd.none, errorMessage "Login error" )
 
 
 

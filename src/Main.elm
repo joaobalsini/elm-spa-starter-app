@@ -4,10 +4,10 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Navigation exposing (Location)
-import Routes exposing (..)
-import Message exposing (..)
-import Index
-import Login
+import RouteModule exposing (..)
+import MessageModule exposing (..)
+import IndexModule
+import LoginModule
 
 
 main : Program Never Model Msg
@@ -25,11 +25,11 @@ main =
 
 
 type alias Model =
-    { route : Route
+    { routeModule : Route
     , lastRoute : Route
-    , login : Login.Model
-    , index : Index.Model
-    , message : Message.Message
+    , loginModuleModel : LoginModule.Model
+    , indexModuleModel : IndexModule.Model
+    , messageModuleMessage : MessageModule.Message
     }
 
 
@@ -39,28 +39,28 @@ init location =
         route =
             locationToRoute location
 
-        ( indexInitModel, indexCmd ) =
-            Index.init
+        ( indexModuleInitModel, indexModuleCmd ) =
+            IndexModule.init
 
-        ( loginInitModel, loginCmd ) =
-            Login.init
+        ( loginModuleInitModel, loginModuleCmd ) =
+            LoginModule.init
 
-        ( messageInitModel, messageCmd ) =
-            Message.init
+        ( messageModuleInitMessage, messageModuleCmd ) =
+            MessageModule.init
 
         initModel =
             { route = route
-            , lastRoute = IndexRoute
-            , index = indexInitModel
-            , login = loginInitModel
-            , message = Message.initMessage
+            , lastRoute = IndexModuleRoute
+            , indexModuleModel = indexModuleInitModel
+            , loginModuleModel = loginModuleInitModel
+            , messageModuleMessage = MessageModule.initMessage
             }
 
         cmds =
             Cmd.batch
-                [ Cmd.map LoginMsg loginCmd
-                , Cmd.map IndexMsg indexCmd
-                , Cmd.map MessageMsg messageCmd
+                [ Cmd.map LoginModuleMsg loginModuleCmd
+                , Cmd.map IndexModuleMsg indexModuleCmd
+                , Cmd.map MessageModuleMsg messageModuleCmd
                 ]
     in
         ( initModel, cmds )
@@ -84,9 +84,9 @@ locationToMsg location =
 type Msg
     = Navigate Route
     | ChangePage Route
-    | IndexMsg Index.Msg
-    | LoginMsg Login.Msg
-    | MessageMsg Message.Msg
+    | IndexModuleMsg IndexModule.Msg
+    | LoginModuleMsg LoginModule.Msg
+    | MessageModuleMsg MessageModule.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -108,31 +108,31 @@ update msg model =
             in
                 ( { model | route = route, lastRoute = lastRoute }, Cmd.none )
 
-        IndexMsg msg ->
+        IndexModuleMsg msg ->
             let
-                ( indexModel, cmd ) =
-                    Index.update msg model.index
+                ( indexModuleModel, cmd ) =
+                    IndexModule.update msg model.index
             in
-                ( { model | index = indexModel }
-                , Cmd.map IndexMsg cmd
+                ( { model | indexModuleModel = indexModuleModel }
+                , Cmd.map IndexModuleMsg cmd
                 )
 
-        LoginMsg msg ->
+        LoginModuleMsg msg ->
             let
-                ( loginModel, cmd, message ) =
-                    Login.update msg model.login
+                ( loginModuleModel, cmd, message ) =
+                    LoginModule.update msg model.login
             in
-                ( { model | login = loginModel, message = message }
-                , Cmd.map LoginMsg cmd
+                ( { model | loginModuleModel = loginModuleModel, messageModuleMessage = message }
+                , Cmd.map LoginModuleMsg cmd
                 )
 
-        MessageMsg msg ->
+        MessageModuleMsg msg ->
             let
-                ( messageModel, cmd ) =
-                    Message.update msg model.message
+                ( messageModuleMessage, cmd ) =
+                    MessageModule.update msg model.messageModuleMessage
             in
-                ( { model | message = messageModel }
-                , Cmd.map MessageMsg cmd
+                ( { model | messageModuleMessage = messageModuleMessage }
+                , Cmd.map MessageModuleMsg cmd
                 )
 
 
@@ -142,13 +142,13 @@ view model =
         -- get the page through the view method of each Module passing the parameters needed and render that page
         page =
             case model.route of
-                IndexRoute ->
-                    Html.map IndexMsg
-                        (Index.view model.index)
+                IndexModuleRoute ->
+                    Html.map IndexModuleMsg
+                        (IndexModule.view model.indexModule)
 
-                LoginRoute ->
-                    Html.map LoginMsg
-                        (Login.view model.login)
+                LoginModuleRoute ->
+                    Html.map LoginModuleMsg
+                        (LoginModule.view model.loginModule)
 
                 NotFoundRoute ->
                     div [ class "main" ]
@@ -158,7 +158,7 @@ view model =
     in
         div []
             [ div [ class "ui fixed inverted menu" ] [ pageHeader model ]
-            , Html.map MessageMsg (Message.view model.message)
+            , Html.map MessageModuleMsg (MessageModule.view model.messageModule)
             , div [ class "ui main text container" ] [ page ]
             ]
 
@@ -166,8 +166,8 @@ view model =
 pageHeader : Model -> Html Msg
 pageHeader model =
     div [ class "ui container" ]
-        [ a [ class "item", onClick (Navigate IndexRoute) ] [ text "Index" ]
-        , a [ class "item right", onClick (Navigate LoginRoute) ] [ text "Login" ]
+        [ a [ class "item", onClick (Navigate IndexModuleRoute) ] [ text "Index" ]
+        , a [ class "item right", onClick (Navigate LoginModuleRoute) ] [ text "Login" ]
         ]
 
 
@@ -178,17 +178,17 @@ pageHeader model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     let
-        loginSub =
-            Login.subscriptions model.login
+        loginModuleSub =
+            LoginModule.subscriptions model.login
 
-        indexSub =
-            Index.subscriptions model.index
+        indexModuleSub =
+            IndexModule.subscriptions model.index
 
-        messageSub =
-            Message.subscriptions model.message
+        messageModuleSub =
+            MessageModule.subscriptions model.message
     in
         Sub.batch
-            [ Sub.map IndexMsg indexSub
-            , Sub.map LoginMsg loginSub
-            , Sub.map MessageMsg messageSub
+            [ Sub.map IndexModuleMsg indexModuleSub
+            , Sub.map LoginModuleMsg loginModuleSub
+            , Sub.map MessageModuleMsg messageModuleSub
             ]

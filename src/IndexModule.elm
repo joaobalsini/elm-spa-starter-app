@@ -1,8 +1,9 @@
-port module Index exposing (..)
+port module IndexModule exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
+import Aliases exposing (..)
 
 
 -- model
